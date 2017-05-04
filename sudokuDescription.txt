@@ -1,0 +1,21 @@
+
+The columns represent the constraints of the puzzle:
+	-Position constraint: Only 1 number can occupy a cell
+	-Row constraint: Only 1 instance of a number can be in a column
+	-Column constraint: Only 1 instance of a number can be in a column
+	-A region constraint: Only 1 instance of a number can be in a region
+
+Each number comes with its own set of constraints.
+=> SIZE^2 * 4
+	s.t. SIZE = 9
+=> 324 columns
+
+The rows represent every single possible position for every number.
+=> SIZE^3
+	s.t. SIZE = 9
+=> 729 rows
+
+(Each row would represent only one candidate position. Therefore, only 4 1's will be in the row, representing the constraints of that position.)
+
+
+*Given the initial positions in the matrix, those rows will be included in the answer and 'covered'. Then the Search algorithm will produce the solutions to the puzzle.
