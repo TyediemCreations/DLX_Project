@@ -290,10 +290,10 @@ public class DLX{
 
 /*
 To do:
-	-verify 'size' is being updated accurately and at the correct time
 	-(eventually) optimize 'countSize' (update automatically following the deletion/insertion of a Link to a column)
 
 	-(completed?) verify 'return' works as it says on the tin
+	-(completed?) verify 'size' is being updated accurately and at the correct time
 */
 
 /*

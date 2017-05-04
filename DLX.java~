@@ -284,6 +284,20 @@ public class DLX{
 			}
 		}
 	}
+
+	public void printCount(){
+		String str="sizes: ";
+		for (DancingLink c=h.getRight();c!=null;c=c.getRight()){
+			str+= c.getSize();
+		}
+		System.out.println(str);
+	}
+	public void dummyDelete(){
+		removeColumn(links.get(0).get(0));
+	}
+	public void dummyReturn(){
+		returnColumn(links.get(0).get(0));
+	}
 }
 
 
@@ -293,6 +307,7 @@ To do:
 	-(eventually) optimize 'countSize' (update automatically following the deletion/insertion of a Link to a column)
 
 	-(completed?) verify 'return' works as it says on the tin
+	-(completed?) verify 'size' is being updated accurately and at the correct time
 */
 
 /*
