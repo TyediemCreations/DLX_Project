@@ -6,10 +6,10 @@ public class DLX{
 	private int matrixRows,matrixCols;
 	private Vector< Vector <Integer> > solutions;
 
-	private int testCounter;
+	//private int testCounter;
 
 	public DLX(boolean[][] matrix){
-		testCounter = 0;
+		//testCounter = 0;
 
 		links = new Vector< Vector <DancingLink> >();
 		solutions = new Vector< Vector <Integer> >();
@@ -242,7 +242,19 @@ public class DLX{
 		}
 		return copy;
 	}
-	public Vector< Vector <Integer> > getSolutions(){return solutions;}
+	public Vector< Vector <Integer> > getSolutions(){
+		//return solutions;
+
+		Vector< Vector<Integer> > solutionsCopy = new Vector< Vector<Integer> >();
+		for (int i=0;i<solutions.size();i++){
+			Vector<Integer> rowCopy = new Vector<Integer>();
+			for (int j=0;j<solutions.get(i).size();j++){
+				rowCopy.add(solutions.get(i).get(j));
+			}
+			solutionsCopy.add(rowCopy);
+		}
+		return solutionsCopy;
+	}
 	public boolean elementOf(int row, Vector<Integer> list){
 		for (int i=0;i<list.size();i++){
 			if (row == list.get(i))
@@ -306,9 +318,9 @@ public class DLX{
 		//In case of running on an empty puzzle//
 		if (solutions.size() > 10) return;
 
-		testCounter++;
-		if (testCounter > 100000)
-			return;
+		//testCounter++;
+		//if (testCounter > 100000)
+		//	return;
 		//System.out.println(pS.size());
 		/**/
 		Vector <Integer> partialSolution = solutionCopy(pS);

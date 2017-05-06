@@ -61,16 +61,18 @@ public class Puzzle{
 			}
 		}
 	
-		//DLX links = new DLX(sudoBinary);
+		//DLX newLinks = new DLX(sudoBinary);
 
 		links.algorithmXPlus(partialSolution);
+		//newLinks.algorithmXPlus(partialSolution);
+		//return newLinks.getSolutions
 		//links.printLinks();
 
 		//for (int i=0;i<links.getSolutions().size();i++){
 		//	System.out.println("\nSolution #"+(i+1)+"\n");
 		//	interpretSolution(links.getSolutions().get(i));
 		//}
-		return links.getSolutions();
+		return newLinks.getSolutions();
 	}
 	public Vector< Vector<Integer> > solvePuzzle(Vector <Integer> partialSolution){
 		links.algorithmXPlus(partialSolution);

@@ -61,9 +61,11 @@ public class Puzzle{
 			}
 		}
 	
-		//DLX links = new DLX(sudoBinary);
+		//DLX newLinks = new DLX(sudoBinary);
 
 		links.algorithmXPlus(partialSolution);
+		//newLinks.algorithmXPlus(partialSolution);
+		//return newLinks.getSolutions
 		//links.printLinks();
 
 		//for (int i=0;i<links.getSolutions().size();i++){
