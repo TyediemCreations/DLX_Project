@@ -5,6 +5,7 @@ public class Puzzle{
 	private int[][] sudoku;	
 	private int size;
 	private boolean[][] sudoBinary;
+	DLX links;
 
 	public Puzzle(int[][] sudoku){
 		this.sudoku = sudoku;
@@ -14,6 +15,8 @@ public class Puzzle{
 
 		sudoBinary = new boolean[binRows][binCols];
 		fillBinary();
+
+		links = new DLX(sudoBinary);
 	}
 	private void fillBinary(){
 		int c1_start=0;
@@ -42,7 +45,137 @@ public class Puzzle{
 
 		return regNo;
 	}
+	public boolean[][] getBinary(){return sudoBinary;}
 
+	public Vector< Vector<Integer> > solvePuzzle(){return solvePuzzle(sudoku);}
+	public Vector< Vector<Integer> > solvePuzzle(int[][] toSolve){
+		Vector <Integer> partialSolution = new Vector<Integer>();
+
+		for (int row=0;row<toSolve.length;row++){
+			for (int col=0;col<toSolve[row].length;col++){
+				int num = toSolve[row][col];
+				if (num != 0){
+					int rowNo = getBinaryRow(num, row, col);
+					partialSolution.add(rowNo);
+				}
+			}
+		}
+	
+		//DLX links = new DLX(sudoBinary);
+
+		links.algorithmXPlus(partialSolution);
+		//links.printLinks();
+
+		//for (int i=0;i<links.getSolutions().size();i++){
+		//	System.out.println("\nSolution #"+(i+1)+"\n");
+		//	interpretSolution(links.getSolutions().get(i));
+		//}
+		return links.getSolutions();
+	}
+	public Vector< Vector<Integer> > solvePuzzle(Vector <Integer> partialSolution){
+		links.algorithmXPlus(partialSolution);
+		return links.getSolutions();
+	}
+	public int[][] createPuzzle(){return createPuzzle(copySudoku());}
+	public int[][] createPuzzle(int[][] completed){
+		Vector < Vector< Integer >> solutions = new Vector< Vector<Integer> >();
+
+		for (int row=0;row<completed.length;row++){
+			for (int col=0;col<completed[row].length;col++){
+				int currNum = completed[row][col];
+
+				if (currNum==0) continue;
+
+				completed[row][col] = 0;
+				solutions = solvePuzzle(completed);
+				
+				if (solutions.size() != 1)
+					completed[row][col] = currNum;
+
+				////used for time estimates of O(n^2) puzzle-creation algorithms (such that n=size^2)
+				//else
+				//	return createPuzzle(completed);
+				//
+			}
+		}
+		//solutions = solvePuzzle(completed);
+		//interpretSolution(solutions.get(0));
+
+		return completed;
+	}
+	public int[][] copySudoku(){
+		int[][] copy = new int[size][size];
+
+		for (int row=0;row<size;row++){
+			for (int col=0;col<size;col++){
+				copy[row][col] = sudoku[row][col];
+			}
+		}
+		return copy;
+	}
+	public int getBinaryRow(int num, int row, int col){
+		int rowNo = row*size*size + col*size + (num-1);
+		return rowNo;
+	}
+
+	public Vector<int[][]> createPuzzles(Vector<Vector <Integer> > solutions){
+		Vector<int[][]> ans = new Vector<int[][]>();
+
+		for (int i=0;i<solutions.size();i++){
+			int[][] completePuzzle = interpretSolution(solutions.get(i));
+			printSudoku(completePuzzle);
+			
+			int[][] incompletePuzzle = createPuzzle(completePuzzle);
+			ans.add(incompletePuzzle);
+			printSudoku(incompletePuzzle);
+
+			System.out.println("-------");
+		}
+
+		return ans;
+	}
+
+	public int[][] interpretSolution(Vector <Integer> solution){
+		String strNum,strPos,strReg;
+		int[][] sudo = new int[size][size];
+		for (int i=0;i<solution.size();i++){
+			int row = solution.get(i);
+
+			int groupNo = row/size;
+			int number = row%size;	//add a 1 if displaying this number
+			int rowNo = groupNo/size;
+			int colNo = groupNo%size;
+			int regNo = getRegNo(rowNo,colNo); 
+
+			/*
+			strNum = "Number: "+(number+1);
+			strPos = "Row,Col: ("+rowNo+","+colNo+")";
+			strReg = "Region: "+regNo;
+			System.out.println(strNum+", "+strPos+", "+strReg);
+			*/
+			sudo[rowNo][colNo] = number+1;
+			
+		}
+		
+		//printSudoku(sudo);
+		return sudo;
+	}
+
+	public void printSudoku(){printSudoku(sudoku);}
+	public void printSudoku(int[][] sudo){
+		int regLength = (int) Math.sqrt(size);
+		for (int row=0;row<sudo.length;row++){
+			String printRow = "";
+			for (int col=0;col<sudo[row].length;col++){
+				if (col%regLength == 0)
+					printRow += " ";
+				printRow += sudo[row][col];
+			}
+			if (row%regLength == 0)
+				System.out.println("");
+			System.out.println(printRow);
+		}
+	}
 	public void printBinary(){
 		String filename = "test.txt";
 		

@@ -273,7 +273,9 @@ public class review{
 
 		System.out.println("\nHello, world\n");
 		
-		String fileName = "DLX/sudoEx.txt";
+		//String fileName = "DLX/sudoEx.txt";
+		String fileName = "DLX/sudoEx_empty.txt";
+		//String fileName = "DLX/sudoEx_completed.txt";
 
 		String line = "";
 
@@ -281,11 +283,11 @@ public class review{
 		int col = 9;
 		int[][] intMatrix = new int[row][col];
 		
-		for (int i=0;i<row;i++){
-			for (int j=0;j<col;j++){
-				intMatrix[i][j] = 0;
-			}
-		}
+		//for (int i=0;i<row;i++){
+		//	for (int j=0;j<col;j++){
+		//		intMatrix[i][j] = 0;
+		//	}
+		//}
 
 		try{
 			FileReader fileReader = new FileReader(fileName);
@@ -316,6 +318,9 @@ public class review{
 		catch(IOException ex){
 			System.out.println("Error reading file '" + fileName+"'");
 		}
+
+		Puzzle myPuzzle = new Puzzle(intMatrix);
+		//myPuzzle.printBinary();
 		/*
 		for (int i=0;i<row;i++){
 			String str = "";
@@ -327,8 +332,17 @@ public class review{
 		*/
 
 		/**/
-		DLX links = new DLX(matrix);
+		//DLX links = new DLX(matrix);
+		//DLX links = new DLX(myPuzzle.getBinary());
+
+		Date date_init = new Date();
 		System.out.println("\nBeginning...\n");
+		//myPuzzle.solvePuzzle();
+		//myPuzzle.printSudoku(myPuzzle.createPuzzle());
+		//myPuzzle.printSudoku(myPuzzle.createPuzzle(myPuzzle.interpretSolution(myPuzzle.solvePuzzle().get(0))));
+		
+		myPuzzle.createPuzzles(myPuzzle.solvePuzzle());
+
 		//links.printLinks();
 		//links.printNode();
 		//links.removeColumn(links.exampleLink());
@@ -340,11 +354,45 @@ public class review{
 		//links.algorithmX();
 		//links.printLinksV2();
 		System.out.println("\n\n");
-		links.printLinks();
+		//links.printLinks();
 
-		links.printSolutions();
+		//links.printSolutions();
+		System.out.println("");
+		//for (int i=0;i<links.getSolutions().size();i++){
+		//	System.out.println("\nSolution #"+(i+1)+"\n");
+		//	myPuzzle.interpretSolution(links.getSolutions().get(i));
+		//}
 		/**/
+		Date date_fin = new Date();
+		String time_dif = Double.toString((date_fin.getTime()-date_init.getTime())/1000.0);
+		System.out.println("Time elapsed since beginning: "+time_dif+" seconds");
+		
 		System.out.println("\nGoodbye, all\n");
 		
 	}	
 }
+
+/*
+	Note: 	-around 2.4-2.8 seconds for 'naive createPuzzle'. That's, y'know, not very good.
+		-around 14.398 seconds for 'complex createPuzzle' (calls createPuzzle recursively after every successful number removal- yielded the same result as the naive implementation)
+
+	updated 'algorithmXPlus' to return removed links after completion, and moved
+	the DLX object 'links' outside of 'solvePuzzle' so as to avoid constantly recreating it
+		new times: 0.216-0.411 seconds for the 'naive' puzzle (avg about 0.2-0.3),
+			       (run on 'sudoEx_completed'. on 'sudoEx', it took 8.25 seconds; however only 1.101 when run on the completed version of 'sudoEx') 
+			   8.086-8.615 seconds for the 'complex' puzzle 
+			   (they remain the same actual output)
+		
+*/
+
+
+/*
+To do (for sudoku stuff):
+	-Start working on creating a puzzle! yaaaaaay
+	-(done I think, but could doubtless be more efficient) use info from integer matrix in the creation of the binary matrix 
+		(either remove rows from binary matrix accordingly [hrmmm...]
+		or pass the relevant rows into algorithmX as a partial solution [eyyyy]
+			note: the latter would require updating DLX to make sure it 
+			removes the relevant rows&columns *before* running algorithmX
+	)
+*/

@@ -6,7 +6,11 @@ public class DLX{
 	private int matrixRows,matrixCols;
 	private Vector< Vector <Integer> > solutions;
 
+	private int testCounter;
+
 	public DLX(boolean[][] matrix){
+		testCounter = 0;
+
 		links = new Vector< Vector <DancingLink> >();
 		solutions = new Vector< Vector <Integer> >();
 
@@ -238,11 +242,75 @@ public class DLX{
 		}
 		return copy;
 	}
+	public Vector< Vector <Integer> > getSolutions(){return solutions;}
+	public boolean elementOf(int row, Vector<Integer> list){
+		for (int i=0;i<list.size();i++){
+			if (row == list.get(i))
+				return true;
+		}
+		return false;
+	}
+	public void algorithmXPlus(Vector <Integer> pS){
+			/*
+			Runs algorithmX given an initial partial solution that must occur
+			in any full solution.
+			*/	
+			//Note: probably easier to work this into the constructor, 
+			//or something like that
+		solutions = new Vector< Vector<Integer> >();
+
+		boolean[] toRemove = new boolean[matrixRows];
+		for (int i=0;i<pS.size();i++){
+			toRemove[pS.get(i)] = true;
+		}
+
+		//remove rows found in the initial partial solution
+		Vector<DancingLink> removedLinks = new Vector<DancingLink>();
+
+		for (DancingLink c=h.getRight();c != null; c=c.getRight()){
+			for (DancingLink r=c.getDown();r != null;r = r.getDown()){
+				//if (!elementOf(r.getRow(),pS)) 
+				//	continue;				
+				if (!toRemove[r.getRow()])
+					continue;
+
+				removeColumn(c);
+				removedLinks.add(c);
+				for (DancingLink rightNode=r.getRight();rightNode != null;rightNode = rightNode.getRight()){
+					removeColumn(rightNode.getColumnHeader());
+					removedLinks.add(rightNode.getColumnHeader());
+				}
+				for (DancingLink leftNode=r.getLeft();leftNode != null;leftNode = leftNode.getLeft()){
+					removeColumn(leftNode.getColumnHeader());
+					removedLinks.add(leftNode.getColumnHeader());
+				}
+			}			
+		}
+
+		algorithmX(pS);
+
+		//return rows
+		for (int i=0;i<removedLinks.size();i++){
+			DancingLink removedLink = removedLinks.get(i);
+			returnColumn(removedLink);
+		}
+	}
 	public void algorithmX(){
+		solutions = new Vector< Vector<Integer> >();
+
 		Vector <Integer> pS = new Vector <Integer>();
 		algorithmX(pS);
 	}
-	public void algorithmX(Vector <Integer> pS){		
+	private void algorithmX(Vector <Integer> pS){
+		/*
+		//In case of running on an empty puzzle//
+		if (solutions.size() > 10) return;
+
+		testCounter++;
+		if (testCounter > 100000)
+			return;
+		//System.out.println(pS.size());
+		/**/
 		Vector <Integer> partialSolution = solutionCopy(pS);
 
 		if (h.getRight() == null){
