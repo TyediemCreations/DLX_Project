@@ -5,13 +5,23 @@ public class Puzzle{
 	private int[][] sudoku;	
 	private int size;
 	private boolean[][] sudoBinary;
-	DLX links;
+	private DLX links;
+	private Vector<int[]> coords;
 
 	public Puzzle(int[][] sudoku){
 		this.sudoku = sudoku;
 		size = sudoku.length;
 		int binRows = (size*size*size);	//324 columns; one for each constraint
 		int binCols = (size*size)*4;	//729 rows; one for every possible position for every number
+		coords = new Vector<int[]>();
+		for (int row=0;row<size;row++){
+			for (int col=0;col<size;col++){
+				int[] coord = new int[2];
+				coord[0] = row;
+				coord[1] = col;
+				coords.add(coord);
+			}
+		}
 
 		sudoBinary = new boolean[binRows][binCols];
 		fillBinary();
@@ -47,8 +57,8 @@ public class Puzzle{
 	}
 	public boolean[][] getBinary(){return sudoBinary;}
 
-	public Vector< Vector<Integer> > solvePuzzle(){return solvePuzzle(sudoku);}
-	public Vector< Vector<Integer> > solvePuzzle(int[][] toSolve){
+	public Vector< Vector<Integer> > solvePuzzle(){return solvePuzzle(sudoku,true);}
+	public Vector< Vector<Integer> > solvePuzzle(int[][] toSolve, boolean fullAnswer){
 		Vector <Integer> partialSolution = new Vector<Integer>();
 
 		for (int row=0;row<toSolve.length;row++){
@@ -62,46 +72,68 @@ public class Puzzle{
 		}
 	
 		//DLX newLinks = new DLX(sudoBinary);
+		//newLinks.algorithmXPlus(partialSolution,fullAnswer);
+		//return newLinks.getSolutions();
 
-		links.algorithmXPlus(partialSolution);
-		//newLinks.algorithmXPlus(partialSolution);
-		//return newLinks.getSolutions
-		//links.printLinks();
-
-		//for (int i=0;i<links.getSolutions().size();i++){
-		//	System.out.println("\nSolution #"+(i+1)+"\n");
-		//	interpretSolution(links.getSolutions().get(i));
-		//}
+		links.algorithmXPlus(partialSolution,fullAnswer);
 		return links.getSolutions();
 	}
-	public Vector< Vector<Integer> > solvePuzzle(Vector <Integer> partialSolution){
-		links.algorithmXPlus(partialSolution);
+	public Vector< Vector<Integer> > solvePuzzle(Vector <Integer> partialSolution, boolean fullAnswer){
+		links.algorithmXPlus(partialSolution,fullAnswer);
 		return links.getSolutions();
+	}
+	public int[][] newCompletedPuzzle(){
+		int[][] newPuzzle = new int[size][size];
+
+		Vector < Vector< Integer >> solutions = new Vector< Vector<Integer> >();
+		Random rand = new Random();
+		int count=0;
+		
+		Collections.shuffle(coords);
+		for (int coord=0;coord<coords.size() && count<6;coord++){
+			int row = coords.get(coord)[0];
+			int col = coords.get(coord)[1];
+			
+			int randnum = rand.nextInt(size)+1;
+			newPuzzle[row][col] = randnum;
+			//System.out.println("Trying to place "+randnum+":("+row+","+col+")");
+			solutions = solvePuzzle(newPuzzle,false);
+			if (solutions.size()==0){
+				newPuzzle[row][col] = 0;
+				//System.out.println("Failed to place number!");
+			}else{
+				count++;
+				//System.out.println("Successfully placed number!");
+			}
+		}
+		newPuzzle = interpretSolution(solutions.get(0));
+		
+
+		return newPuzzle;
+	}
+	public int getDifficulty(int[][] puzzle){
+		int difficulty = 0;
+
+		return difficulty;
 	}
 	public int[][] createPuzzle(){return createPuzzle(copySudoku());}
 	public int[][] createPuzzle(int[][] completed){
 		Vector < Vector< Integer >> solutions = new Vector< Vector<Integer> >();
 
-		for (int row=0;row<completed.length;row++){
-			for (int col=0;col<completed[row].length;col++){
-				int currNum = completed[row][col];
+		Collections.shuffle(coords);
+		for (int i=0;i<coords.size();i++){
+			int row = coords.get(i)[0];
+			int col = coords.get(i)[1];
+			int currNum = completed[row][col];
 
-				if (currNum==0) continue;
+			if (currNum==0) continue;
 
-				completed[row][col] = 0;
-				solutions = solvePuzzle(completed);
-				
-				if (solutions.size() != 1)
-					completed[row][col] = currNum;
+			completed[row][col] = 0;
+			solutions = solvePuzzle(completed,false);
 
-				////used for time estimates of O(n^2) puzzle-creation algorithms (such that n=size^2)
-				//else
-				//	return createPuzzle(completed);
-				//
-			}
+			if (solutions.size() != 1)
+				completed[row][col] = currNum;
 		}
-		//solutions = solvePuzzle(completed);
-		//interpretSolution(solutions.get(0));
 
 		return completed;
 	}
@@ -118,23 +150,6 @@ public class Puzzle{
 	public int getBinaryRow(int num, int row, int col){
 		int rowNo = row*size*size + col*size + (num-1);
 		return rowNo;
-	}
-
-	public Vector<int[][]> createPuzzles(Vector<Vector <Integer> > solutions){
-		Vector<int[][]> ans = new Vector<int[][]>();
-
-		for (int i=0;i<solutions.size();i++){
-			int[][] completePuzzle = interpretSolution(solutions.get(i));
-			printSudoku(completePuzzle);
-			
-			int[][] incompletePuzzle = createPuzzle(completePuzzle);
-			ans.add(incompletePuzzle);
-			printSudoku(incompletePuzzle);
-
-			System.out.println("-------");
-		}
-
-		return ans;
 	}
 
 	public int[][] interpretSolution(Vector <Integer> solution){

@@ -91,6 +91,28 @@ public class DLX{
 		}
 		return;
 	}
+	public void reset(){
+		h.setRight(links.get(0).get(0));
+		links.get(0).get(0).setLeft(h);
+
+		for (int row=0;row<links.size();row++){
+			Vector <DancingLink> linkRow = links.get(row);
+			int numCols = linkRow.size();
+
+			for (int col=0;col<numCols;col++){
+				DancingLink theLink = linkRow.get(col);
+				if ((col-1) >= 0)
+					theLink.setLeft(linkRow.get(col-1));
+				if ((col+1) < numCols)
+					theLink.setRight(linkRow.get(col+1));
+				setLower(theLink,row);
+			}
+		}
+		setColumnHeaders();
+
+		updateCount();	
+	}
+
 	public void updateCount(){
 		for (DancingLink link=h.getRight();link != null;link=link.getRight()){
 			link.setSize(link.countSize());
@@ -262,13 +284,16 @@ public class DLX{
 		}
 		return false;
 	}
-	public void algorithmXPlus(Vector <Integer> pS){
+	public void algorithmXPlus(Vector <Integer> pS,boolean fullAnswer){
 			/*
 			Runs algorithmX given an initial partial solution that must occur
 			in any full solution.
 			*/	
 			//Note: probably easier to work this into the constructor, 
 			//or something like that
+		
+		reset(); //Note: should probably try to do without needing this
+		
 		solutions = new Vector< Vector<Integer> >();
 
 		boolean[] toRemove = new boolean[matrixRows];
@@ -299,7 +324,7 @@ public class DLX{
 			}			
 		}
 
-		algorithmX(pS);
+		algorithmX(pS,fullAnswer);
 
 		//return rows
 		for (int i=0;i<removedLinks.size();i++){
@@ -311,10 +336,10 @@ public class DLX{
 		solutions = new Vector< Vector<Integer> >();
 
 		Vector <Integer> pS = new Vector <Integer>();
-		algorithmX(pS);
+		algorithmX(pS,true);
 	}
-	private void algorithmX(Vector <Integer> pS){
-		/**/
+	private void algorithmX(Vector <Integer> pS, boolean fullAnswer){
+		/*
 		//In case of running on an empty puzzle//
 		if (solutions.size() > 10) return;
 
@@ -323,6 +348,9 @@ public class DLX{
 		//	return;
 		//System.out.println(pS.size());
 		/**/
+		if (!fullAnswer && solutions.size() > 1)
+			return;
+
 		Vector <Integer> partialSolution = solutionCopy(pS);
 
 		if (h.getRight() == null){
@@ -351,7 +379,7 @@ public class DLX{
 			}
 
 			//repeat this algorithm recursively on the reduced matrix A
-			algorithmX(partialSolution);
+			algorithmX(partialSolution, fullAnswer);
 			partialSolution = solutionCopy(pS);
 
 			//return removed columns

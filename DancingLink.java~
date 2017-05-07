@@ -31,6 +31,17 @@ public class DancingLink{
 		columnHeader = null;
 	}
 
+	public DancingLink(DancingLink toCopy){
+		column = -1;
+		row = -1;
+
+		left = null;
+		right = null;
+		up = null;
+		down = null;
+		columnHeader = null;
+	}
+
 	public int getRow(){return row;}
 	public int getColumn(){return column;}
 	public DancingLink getUp(){return up;}
@@ -76,6 +87,9 @@ public class DancingLink{
 			return 0;
 		else return 1+down.countSize();
 	}
+	public void increaseSize(){size++;}
+	public void decreaseSize(){size--;}
+
 	public void setSize(int size){
 		this.size = size;
 	}
