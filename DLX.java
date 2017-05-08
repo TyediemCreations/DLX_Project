@@ -1,16 +1,19 @@
+
+/*
+  DLX; given the binary matrix representation of a sudoku puzzle, DLX will convert
+  into DancingLinks. DLX can then be used to find all solutions to that puzzle, in the form
+  of a list of all lists of row indices on the binary matrix that represent an exact cover
+*/
+
 import java.util.*;
 
 public class DLX{
-	private DancingLink h;
+	private DancingLink h;	//header node; points to start of column headers
 	private Vector< Vector <DancingLink> > links;
 	private int matrixRows,matrixCols;
 	private Vector< Vector <Integer> > solutions;
 
-	//private int testCounter;
-
 	public DLX(boolean[][] matrix){
-		//testCounter = 0;
-
 		links = new Vector< Vector <DancingLink> >();
 		solutions = new Vector< Vector <Integer> >();
 
@@ -55,9 +58,7 @@ public class DLX{
 				setLower(theLink,row);
 			}
 		}
-		setColumnHeaders();
-
-		updateCount();	//set initial 'size' for each Column Header		
+		setColumnHeaders();		
 	}
 	private void setColumnHeaders(){
 		for (DancingLink ch=h.getRight();ch != null; ch=ch.getRight()){
@@ -91,40 +92,14 @@ public class DLX{
 		}
 		return;
 	}
-	public void reset(){
-		h.setRight(links.get(0).get(0));
-		links.get(0).get(0).setLeft(h);
-
-		for (int row=0;row<links.size();row++){
-			Vector <DancingLink> linkRow = links.get(row);
-			int numCols = linkRow.size();
-
-			for (int col=0;col<numCols;col++){
-				DancingLink theLink = linkRow.get(col);
-				if ((col-1) >= 0)
-					theLink.setLeft(linkRow.get(col-1));
-				if ((col+1) < numCols)
-					theLink.setRight(linkRow.get(col+1));
-				setLower(theLink,row);
-			}
-		}
-		setColumnHeaders();
-
-		updateCount();	
-	}
-
-	public void updateCount(){
-		for (DancingLink link=h.getRight();link != null;link=link.getRight()){
-			link.setSize(link.countSize());
-		}
-	}
-	public DancingLink chooseColumn(){
+	public DancingLink chooseColumn(){	//choose column with fewest '1's, i.e., smallest size
 		DancingLink ans = h.getRight();
-		int min = ans.getSize();
+		int min = ans.countSize();
 
 		for (DancingLink nextColumn=ans.getRight(); nextColumn != null; nextColumn = nextColumn.getRight()){
-			if (nextColumn.getSize() < min){
-				min = nextColumn.getSize();
+			int nextSize = nextColumn.countSize();
+			if (nextSize < min){
+				min = nextSize;
 				ans = nextColumn;
 			}
 		}
@@ -132,7 +107,11 @@ public class DLX{
 		return ans;
 	}
 
-	public void printLinks(){
+	public void printLinks(){	/*
+					 * prints the coordinates of all links currently 
+					 * connected to the header, 'h'.
+					 * Used for testing purposes.
+					 */
 		String[][] iMatrix = new String[matrixRows+1][matrixCols];
 
 		for (int i=0;i<matrixRows+1;i++){
@@ -156,10 +135,7 @@ public class DLX{
 		}
 		
 	}
-	public String strFormatLink(DancingLink theLink){
-		return theLink.strFormatLink();
-	}
-	public void printLinksV2(){	/*
+	public void printLinksAll(){	/*
 					 * prints the coordinates of all links to stdout, 
 					 * as well as the coordinates of all conencted links
 					 * (regardless of whether or not these are connected)
@@ -177,68 +153,14 @@ public class DLX{
 				down = strFormatLink(theLink.getDown());
 
 				str = "Left: "+left +", Right: "+right+", Up: "+up+", Down: "+down;
-				if (theLink.getRow() == -1)
-					str = theLink.getSize() +", "+str;
+				//if (theLink.getRow() == -1)
+				//	str = theLink.getSize() +", "+str;
 				System.out.println("Node: "+strFormatLink(theLink)+"\t"+str);
 			}
 			System.out.println("");
 		}
 	}
-	
-	public void removeColumn(DancingLink c){	//such that 'c' is a columnNode
-		if (c.getLeft() != null)
-			c.getLeft().setRight(c.getRight());
-		if (c.getRight() != null)
-			c.getRight().setLeft(c.getLeft());
-
-		for (DancingLink row=c.getDown(); row != null; row = row.getDown()){
-			for (DancingLink leftNode = row.getLeft(); leftNode != null; leftNode = leftNode.getLeft()){
-				if (leftNode.getUp() != null)
-					leftNode.getUp().setDown(leftNode.getDown());
-				if (leftNode.getDown() != null)
-					leftNode.getDown().setUp(leftNode.getUp());
-
-				leftNode.getColumnHeader().decreaseSize();
-			}
-			//--would not be necessary if DancingLinks looped back on each other
-			for (DancingLink rightNode = row.getRight(); rightNode != null; rightNode = rightNode.getRight()){
-				if (rightNode.getUp() != null)
-					rightNode.getUp().setDown(rightNode.getDown());
-				if (rightNode.getDown() != null)				
-					rightNode.getDown().setUp(rightNode.getUp());
-
-				rightNode.getColumnHeader().decreaseSize();
-			}
-			//
-		}
-	}
-	public void returnColumn(DancingLink c){	//such that 'c' is a columnNode
-		if (c.getLeft() != null)
-			c.getLeft().setRight(c);
-		if (c.getRight() != null)
-			c.getRight().setLeft(c);
-
-		for (DancingLink row = c.getDown(); row != null; row = row.getDown()){
-			for (DancingLink leftNode = row.getLeft(); leftNode != null; leftNode = leftNode.getLeft()){
-				if (leftNode.getUp() != null)
-					leftNode.getUp().setDown(leftNode);
-				if (leftNode.getDown() != null)
-					leftNode.getDown().setUp(leftNode);
-
-				leftNode.getColumnHeader().increaseSize();
-			}
-			//
-			for (DancingLink rightNode = row.getRight(); rightNode != null; rightNode = rightNode.getRight()){
-				if (rightNode.getUp() != null)
-					rightNode.getUp().setDown(rightNode);
-				if (rightNode.getDown() != null)
-					rightNode.getDown().setUp(rightNode);
-
-				rightNode.getColumnHeader().increaseSize();
-			}
-			//
-		}
-	}
+	public String strFormatLink(DancingLink theLink){return theLink.strFormatLink();}
 	public String strSolution(Vector <Integer> solution){
 		String ans = "(";
 		for (int row=0;row<solution.size();row++){
@@ -256,6 +178,58 @@ public class DLX{
 			System.out.println(printString);
 		}
 	}
+
+	public void removeColumn(DancingLink c){	
+				/* such that 'c' is a columnNode
+			         * relative to binary matrix A, removes column 'c',
+				 * as well as all rows 'r' such that A[r][c] == 1
+				 */
+		if (c.getLeft() != null)
+			c.getLeft().setRight(c.getRight());
+		if (c.getRight() != null)
+			c.getRight().setLeft(c.getLeft());
+
+		for (DancingLink row=c.getDown(); row != null; row = row.getDown()){
+			for (DancingLink leftNode = row.getLeft(); leftNode != null; leftNode = leftNode.getLeft()){
+				if (leftNode.getUp() != null)
+					leftNode.getUp().setDown(leftNode.getDown());
+				if (leftNode.getDown() != null)
+					leftNode.getDown().setUp(leftNode.getUp());
+			}
+			//--would not be necessary if DancingLinks looped back on each other
+			for (DancingLink rightNode = row.getRight(); rightNode != null; rightNode = rightNode.getRight()){
+				if (rightNode.getUp() != null)
+					rightNode.getUp().setDown(rightNode.getDown());
+				if (rightNode.getDown() != null)				
+					rightNode.getDown().setUp(rightNode.getUp());
+			}
+			//
+		}
+	}
+	public void returnColumn(DancingLink c){	//such that 'c' is a columnNode
+		if (c.getLeft() != null)
+			c.getLeft().setRight(c);
+		if (c.getRight() != null)
+			c.getRight().setLeft(c);
+
+		for (DancingLink row = c.getDown(); row != null; row = row.getDown()){
+			for (DancingLink leftNode = row.getLeft(); leftNode != null; leftNode = leftNode.getLeft()){
+				if (leftNode.getUp() != null)
+					leftNode.getUp().setDown(leftNode);
+				if (leftNode.getDown() != null)
+					leftNode.getDown().setUp(leftNode);
+			}
+			//
+			for (DancingLink rightNode = row.getRight(); rightNode != null; rightNode = rightNode.getRight()){
+				if (rightNode.getUp() != null)
+					rightNode.getUp().setDown(rightNode);
+				if (rightNode.getDown() != null)
+					rightNode.getDown().setUp(rightNode);
+			}
+			//
+		}
+	}
+	
 	public Vector <Integer> solutionCopy(Vector<Integer> pS){
 		Vector <Integer> copy = new Vector<Integer>();
 
@@ -265,8 +239,6 @@ public class DLX{
 		return copy;
 	}
 	public Vector< Vector <Integer> > getSolutions(){
-		//return solutions;
-
 		Vector< Vector<Integer> > solutionsCopy = new Vector< Vector<Integer> >();
 		for (int i=0;i<solutions.size();i++){
 			Vector<Integer> rowCopy = new Vector<Integer>();
@@ -277,20 +249,12 @@ public class DLX{
 		}
 		return solutionsCopy;
 	}
-	public boolean elementOf(int row, Vector<Integer> list){
-		for (int i=0;i<list.size();i++){
-			if (row == list.get(i))
-				return true;
-		}
-		return false;
-	}
+	
 	public void algorithmXPlus(Vector <Integer> pS,boolean fullAnswer){
 			/*
 			Runs algorithmX given an initial partial solution that must occur
 			in any full solution.
 			*/	
-			//Note: probably easier to work this into the constructor, 
-			//or something like that
 		
 		solutions = new Vector< Vector<Integer> >();
 
@@ -304,8 +268,6 @@ public class DLX{
 
 		for (DancingLink c=h.getRight();c != null; c=c.getRight()){
 			for (DancingLink r=c.getDown();r != null;r = r.getDown()){
-				//if (!elementOf(r.getRow(),pS)) 
-				//	continue;				
 				if (!toRemove[r.getRow()])
 					continue;
 
@@ -324,13 +286,11 @@ public class DLX{
 
 		algorithmX(pS,fullAnswer);
 
-		reset(); //Note: should probably try to do without needing this
-
 		//return rows
-		//for (int i=0;i<removedLinks.size();i++){
-		//	DancingLink removedLink = removedLinks.get(i);
-		//	returnColumn(removedLink);
-		//}
+		for (int i=0;i<removedLinks.size();i++){
+			DancingLink removedLink = removedLinks.get(i);
+			returnColumn(removedLink);
+		}
 	}
 	public void algorithmX(){
 		solutions = new Vector< Vector<Integer> >();
@@ -338,18 +298,18 @@ public class DLX{
 		Vector <Integer> pS = new Vector <Integer>();
 		algorithmX(pS,true);
 	}
+	public boolean emptyColumn(){
+		for (DancingLink c=h.getRight();c!=null;c=c.getRight()){
+			if (c.getDown() == null) return true;
+		}
+		return false;
+	}
 	private void algorithmX(Vector <Integer> pS, boolean fullAnswer){
-		/*
-		//In case of running on an empty puzzle//
-		if (solutions.size() > 10) return;
 
-		//testCounter++;
-		//if (testCounter > 100000)
-		//	return;
-		//System.out.println(pS.size());
-		/**/
-		if (!fullAnswer && solutions.size() > 1)
+		if (!fullAnswer && solutions.size() > 1){
+			//for puzzle creation; indicates puzzle has at least 2 solutions
 			return;
+		}
 
 		Vector <Integer> partialSolution = solutionCopy(pS);
 
@@ -359,7 +319,7 @@ public class DLX{
 		}
 		DancingLink c = chooseColumn();	//choose column c, such that c is the first column with the fewest 1's
 		
-		if (c.getSize() < 1){
+		if (c.getDown() == null){
 			return;	//terminate unsuccessfully
 		}
 		
@@ -382,7 +342,7 @@ public class DLX{
 			algorithmX(partialSolution, fullAnswer);
 			partialSolution = solutionCopy(pS);
 
-			//return removed columns
+			//return removed columns to previous state
 			returnColumn(c);
 			for (DancingLink rightNode=r.getRight();rightNode != null;rightNode = rightNode.getRight()){
 				returnColumn(rightNode.getColumnHeader());
@@ -394,17 +354,3 @@ public class DLX{
 	}
 }
 
-
-
-/*
-To do:
-	-(eventually) optimize 'countSize' (update automatically following the deletion/insertion of a Link to a column)
-
-	-(completed?) verify 'return' works as it says on the tin
-	-(completed?) verify 'size' is being updated accurately and at the correct time
-*/
-
-/*
-If running into issues implementing algX, double-check remove/returnColumn; make sure the
-	order removed/returned doesn't affect the outcome.
-*/

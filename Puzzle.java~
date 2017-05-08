@@ -1,3 +1,11 @@
+
+/*
+  Puzzle; given an integer matrix representation of a sudoku puzzle, Puzzle will convert this
+  into a binary matrix usable by 'DLX'. 
+  Puzzle can then be used to solve the sudoku, create a new puzzle based on the sudoku, 
+  or come up with its own puzzles + solutions independently
+*/
+
 import java.util.*;
 import java.io.*;
 
@@ -89,12 +97,11 @@ public class Puzzle{
 		Random rand = new Random();
 		int count=0;
 		
-		/**/
 		Collections.shuffle(coords);
 		for (int coord=0;coord<coords.size() && count<6;coord++){
 			int row = coords.get(coord)[0];
 			int col = coords.get(coord)[1];
-			//do{
+			
 			int randnum = rand.nextInt(size)+1;
 			newPuzzle[row][col] = randnum;
 			//System.out.println("Trying to place "+randnum+":("+row+","+col+")");
@@ -106,8 +113,6 @@ public class Puzzle{
 				count++;
 				//System.out.println("Successfully placed number!");
 			}
-			
-			//}while(solutions.size()==0);
 		}
 		newPuzzle = interpretSolution(solutions.get(0));
 		
@@ -123,40 +128,6 @@ public class Puzzle{
 	public int[][] createPuzzle(int[][] completed){
 		Vector < Vector< Integer >> solutions = new Vector< Vector<Integer> >();
 
-		/*
-		for (int row=0;row<completed.length;row++){
-			for (int col=0;col<completed[row].length;col++){
-				int currNum = completed[row][col];
-
-				if (currNum==0) continue;
-
-				completed[row][col] = 0;
-				solutions = solvePuzzle(completed,false);
-				
-				if (solutions.size() != 1)
-					completed[row][col] = currNum;
-
-				////used for time estimates of O(n^2) puzzle-creation algorithms (such that n=size^2)
-				//else
-				//	return createPuzzle(completed);
-				//
-			}
-		}
-		*/
-		/*
-		Vector<int[]> coords = new Vector<int[]>();
-		for (int row=0;row<completed.length;row++){
-			for (int col=0;col<completed[row].length;col++){
-				int currNum = completed[row][col];
-				if (currNum==0) continue;
-
-				int[] coord = new int[2];
-				coord[0] = row;
-				coord[1] = col;
-				coords.add(coord);
-			}
-		}
-		*/
 		Collections.shuffle(coords);
 		for (int i=0;i<coords.size();i++){
 			int row = coords.get(i)[0];
@@ -187,23 +158,6 @@ public class Puzzle{
 	public int getBinaryRow(int num, int row, int col){
 		int rowNo = row*size*size + col*size + (num-1);
 		return rowNo;
-	}
-
-	public Vector<int[][]> createPuzzles(Vector<Vector <Integer> > solutions){
-		Vector<int[][]> ans = new Vector<int[][]>();
-
-		for (int i=0;i<solutions.size();i++){
-			int[][] completePuzzle = interpretSolution(solutions.get(i));
-			printSudoku(completePuzzle);
-			
-			int[][] incompletePuzzle = createPuzzle(completePuzzle);
-			ans.add(incompletePuzzle);
-			printSudoku(incompletePuzzle);
-
-			System.out.println("-------");
-		}
-
-		return ans;
 	}
 
 	public int[][] interpretSolution(Vector <Integer> solution){

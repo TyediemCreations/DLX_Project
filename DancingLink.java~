@@ -1,39 +1,31 @@
 
 /*
-* https://www.ocf.berkeley.edu/~jchu/publicportal/sudoku/sudokku.paper.html
+* Dancing Link; represents a position in a binary matrix with a '1'.
+  Each DancingLink contains 4 links to nodes representing '1's above, below, left and right
+  relative to the binary matrix. Each node also contains a pointer to their column header.
+
+  Created by 'DLX' for use in 'algorithmX'
 */
 
 public class DancingLink{
 	private DancingLink left,right,up,down,columnHeader;
-	private int row,column,size;
+	private int row,column;
 	
 	public DancingLink(int row, int column){
+		this.row = row;
+		this.column = column;
+
 		left = null;
 		right = null;
 		up = null;
 		down = null;
 		columnHeader = null;
-
-		this.row = row;
-		this.column = column;
 	}
 	
 	//constructor for special 'columnHeader' link
-	
 	public DancingLink(int column){
+		row = -1;
 		this.column = column;
-		row = -1;
-
-		left = null;
-		right = null;
-		up = null;
-		down = null;
-		columnHeader = null;
-	}
-
-	public DancingLink(DancingLink toCopy){
-		column = -1;
-		row = -1;
 
 		left = null;
 		right = null;
