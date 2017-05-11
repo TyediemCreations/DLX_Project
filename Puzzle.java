@@ -15,8 +15,6 @@ public class Puzzle{
 	private boolean[][] sudoBinary;
 	private DLX links;
 	private Vector<int[]> coords;
-	
-	public int easy,medium,hard;
 
 	public Puzzle(int[][] sudoku){
 		this.sudoku = sudoku;
@@ -117,25 +115,23 @@ public class Puzzle{
 
 		return newPuzzle;
 	}
-	public int getDifficulty(int[][] puzzle){
-		easy=0;medium=0;hard=0;
-		//int difficulty = getDifficulty(puzzle,false);
-		int difficulty = getDifficulty(puzzle,false);
-		printSudoku(puzzle);
-		System.out.println("Easy: "+easy+", Med: "+medium+", Hard: "+hard);
-		return difficulty;
-	}
-	public int getDifficulty(int[][] puzzle,boolean dummy){
-		
-		
-		//printSudoku(puzzle);
-		//System.out.println("-----");
+	public void printDifficulty(int difficulty){
+		int base = (size*size)+1;
+		int[] level = new int[5];
+		for (int i=4;i>=0;i--){
+			level[i] = difficulty/((int) Math.pow(base,i));
+			difficulty-= level[i]*(Math.pow(base,i));
+		}
 
+		System.out.println("Duh: "+level[0]+", Easy: "+level[1]+", Med: "+level[2]+", Challenge: "+level[3]+", Hard: "+level[4]);
+	}
+	public int getDifficulty(int[][] puzzle){
 		int num;
+		int base = (size*size)+1;
 		int difficulty = 0; 
-		//int easy=0,medium=0,hard=0;
+		//level = {'duh','easy','medium','challenge','hard'}
+		int[] level = new int[5];
 		boolean changed;
-		int[][] puzzle_copy = new int[size][size];
 
 		PosValues[][] possible = new PosValues[size][size];
 		for (int i=0;i<size;i++)
@@ -146,68 +142,71 @@ public class Puzzle{
 			for (int row=0;row<puzzle.length;row++){
 				for (int col=0;col<puzzle.length;col++){
 					if (puzzle[row][col] == 0){
-						possible[row][col].setPos(row,col,puzzle);
-						int uniqueVal = possible[row][col].uniqueVal(row,col,possible);
-						if (possible[row][col].getLength() == 1){
+						int difVal = possible[row][col].setPos(row,col,puzzle);
+						int uniqueVal = possible[row][col].uniqueVal(row,col,possible);				if (difVal==-1){return -1;}
+						else if (difVal==0) {}
+						else if (difVal == 1 || difVal == 2){
 							num = possible[row][col].getFirst();
 							puzzle[row][col] = num;
-							System.out.println("EASY placed "+num+":("+row+","+col+")");
-							easy++;
+							if (difVal==1) level[0]++;
+							else level[1]++;
 							changed = true;
 						}else if (uniqueVal != 0){
 							puzzle[row][col] = uniqueVal;
-							System.out.println("MEDI placed "+uniqueVal+":("+row+","+col+")");
-							medium++;
+							level[2]++;
+							changed = true;
+						}else if (difVal == 3){
+							num = possible[row][col].getFirst();
+							puzzle[row][col] = num;
+							level[3]++;
 							changed = true;
 						}
 						
 					}
+					else{
+						possible[row][col].set(puzzle[row][col]);
+					}
 				}
 			}
 		}while(changed);
+		for (int i=0;i<level.length;i++){
+			difficulty+=level[i]*Math.pow(base,i);
+		}
 
+		int minRow=-1,minCol=-1,minLength=10;
 		for (int row=0;row<puzzle.length;row++){
 			for (int col=0;col<puzzle.length;col++){
-				if (puzzle[row][col] == 0){
-					if (possible[row][col].empty()){
-						return -1;
-					}
-					int pos_diff = 0;
-					do{
-						/**/
-						puzzle_copy = copySudoku(puzzle);
-						num = possible[row][col].getNext(puzzle_copy[row][col]);
-						puzzle_copy[row][col] = num;
-						System.out.println("iHARD placed "+num+":("+row+","+col+")");					
-						pos_diff = getDifficulty(puzzle_copy,false);
-						System.out.println("fHARD placed "+num+":("+row+","+col+")");					
-						/**/
-						
-						/*
-						num = possible[row][col].getNext(puzzle[row][col]);
-						puzzle[row][col] = num;
-						pos_diff = getDifficulty(puzzle,false);
-						*/
-					}while(pos_diff == -1);
-					//System.out.println("placed "+num+":("+row+","+col+")");
-					hard++;
-					difficulty += pos_diff;
-					//printSudoku(puzzle);
-					//System.out.println("-----");
-					for (int x=0;x<size;x++)
-						for (int y=0;y<size;y++)
-							puzzle[x][y] = puzzle_copy[x][y];
-					//printSudoku(puzzle);
-					//System.out.println("-----");
+				int len = possible[row][col].getLength();
+				if (len==0) return -1;
+				if (puzzle[row][col] == 0 && len < minLength){
+					minRow=row;
+					minCol=col;
+					minLength = len;
 				}
 			}
 		}
-		//printSudoku(puzzle);
-		//System.out.println("-----");
-		//difficulty += hard*10+medium*5+easy;	105
+		if (minRow==-1) {return difficulty;}
+		/**/
+		int tryNum = 0,pos_diff=0;
+		int[][] puzzle_copy = new int[size][size];
+		do{
+			puzzle_copy = copySudoku(puzzle);
+			num = possible[minRow][minCol].getNext(tryNum);
+			tryNum = num;
+			if (num==0) return -1;
 
-		//printSudoku(puzzle);
-		//System.out.println("Easy: "+easy+", Med: "+medium+", Hard: "+hard);
+			puzzle_copy[minRow][minCol] = num;
+			pos_diff = getDifficulty(puzzle_copy);
+		}while(pos_diff == -1);
+		difficulty += pos_diff;
+
+		level[4]++;
+		difficulty += level[4] * Math.pow(base,4);
+
+		for (int x=0;x<size;x++)
+			for (int y=0;y<size;y++)
+				puzzle[x][y] = puzzle_copy[x][y];
+		
 		return difficulty;
 	}
 	public boolean solved(int[][] puzzle){

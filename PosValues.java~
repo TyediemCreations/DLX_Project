@@ -1,5 +1,11 @@
+/*
+  PosValues; stores a boolean array representing the viable numbers for (row,col) of the 
+  integer matrix. (i.e., the numbers [1-9] for a 9x9 sudoku puzzle). Updates with 'setPos'
+  Used in 'getDifficulty' in class 'Puzzle'
+*/
+
 public class PosValues{
-	boolean[] values;
+	private boolean[] values;
 
 	public PosValues(int size){
 		values = new boolean[size];
@@ -7,20 +13,32 @@ public class PosValues{
 			values[i] = true;
 	}
 
-	public void setPos(int row, int col, int[][] puzzle){
+	public boolean[] colPos(int col, int[][] puzzle){
+		boolean[] copy = new boolean[values.length];
+		for (int i=0;i<values.length;i++) copy[i] = true;
 		for (int puzRow=0;puzRow<puzzle.length;puzRow++){
 			int num=puzzle[puzRow][col];
-			if (num != 0){
-				values[num-1] = false;
+			if (num!=0){
+				copy[num-1] = false;
 			}
 		}
+		return copy;
+	}
+	public boolean[] rowPos(int row, int[][] puzzle){
+		boolean[] copy = new boolean[values.length];
+		for (int i=0;i<values.length;i++) copy[i] = true;
 		for (int puzCol=0;puzCol<puzzle.length;puzCol++){
 			int num=puzzle[row][puzCol];
-			if (num != 0){
-				values[num-1] = false;
+			if (num!=0){
+				copy[num-1] = false;
 			}
 		}
-		
+		return copy;
+	}
+	public boolean[] regPos(int row, int col, int[][] puzzle){
+		boolean[] copy = new boolean[values.length];
+		for (int i=0;i<values.length;i++) copy[i] = true;
+
 		int regLength = (int) Math.sqrt(values.length);
 		int x = (row/regLength)*regLength;
 		int y = (col/regLength)*regLength;
@@ -28,10 +46,63 @@ public class PosValues{
 			for (int puzCol=y;puzCol<y+regLength;puzCol++){
 				int num = puzzle[puzRow][puzCol];
 				if (num != 0){
-					values[num-1] = false;
+					copy[num-1] = false;
 				}
 			}
 		}
+		return copy;
+	}
+	public boolean[] valuesCopy(){
+		boolean[] copy = new boolean[values.length];
+		for (int i=0;i<values.length;i++)
+			copy[i]=values[i];
+		return copy;
+	}
+	public int setPos(int row, int col, int[][] puzzle){
+		int level = 0;
+		boolean[] colVals = colPos(col,puzzle);
+		boolean[] rowVals = rowPos(row,puzzle);
+		boolean[] regVals = regPos(row,col,puzzle);
+		boolean[] colRow = compare(colVals,rowVals);
+		boolean[] colReg = compare(colVals,regVals);
+		boolean[] rowReg = compare(rowVals,regVals);
+		boolean[] colRowReg = compare(colRow, regVals);
+
+		if (getLength(colVals) == 1){
+			level = 1;
+		}else if (getLength(rowVals) == 1){
+			level = 1;
+		}else if (getLength(regVals) == 1){
+			level = 1;
+		}else if (getLength(colRow) == 1){
+			level = 2;
+		}else if (getLength(colReg) == 1){
+			level = 2;
+		}else if (getLength(rowReg) == 1){
+			level = 2;
+		}else if (getLength(colRowReg) == 1){
+			level = 3;
+		}
+		
+		if (empty(colRowReg)) level = -1;
+		copy(colRowReg);
+		
+		return level;
+	}
+	
+	public boolean[] compare(boolean[] pos1, boolean[] pos2){
+		boolean[] ans = new boolean[values.length];
+		for (int i=0;i<values.length;i++){
+			if (!pos1[i] || !pos2[i]) 
+				ans[i] = false;
+			else 
+				ans[i] = true;
+		}
+		return ans;
+	}
+	public void copy(boolean[] other){
+		for (int i=0;i<values.length;i++)
+			values[i] = other[i];
 	}
 	public boolean[] get(){return values;}
 	public int uniqueVal(int row, int col, PosValues[][] possible){
@@ -78,15 +149,6 @@ public class PosValues{
 			if (other[i]) unique[i] = false;
 		}
 	}
-	/*
-	public boolean[] getUnique(boolean[] other){
-		boolean[] unique = new boolean[values.length];
-		for (int i=0;i<values.length;i++){
-			if (value[i] && !other[i])
-				unique[i] = true;
-		}
-		return unique;
-	}*/
 	public int getFirst(){
 		return getNext(0);
 	}
@@ -101,5 +163,28 @@ public class PosValues{
 			if (values[i]) return false;
 		}
 		return true;
+	}
+	public boolean empty(boolean[] value){
+		for (int i=0;i<value.length;i++){
+			if (value[i]) return false;
+		}
+		return true;
+	}
+	public int getLength(){
+		int count = 0;
+		for (int i=0;i<values.length;i++){
+			if (values[i]) count++;
+		}
+		return count;
+	}
+	public int getLength(boolean[] other){
+		int count = 0;
+		for (int i=0;i<other.length;i++){
+			if (other[i]) count++;
+		}
+		return count;
+	}
+	public void set(int num){
+		values[num-1] = true;
 	}
 }
