@@ -292,6 +292,56 @@ public class DLX{
 			returnColumn(removedLink);
 		}
 	}
+	public void algorithmXPlusPlus(boolean[] toRemove,boolean fullAnswer){
+			/*
+			  Slight variation of 'algorithmXPlus', cuts down on a slight amount
+			  of repeated work for puzzle creation
+			*/	
+		Vector <Integer> pS = new Vector<Integer>();
+		solutions = new Vector< Vector<Integer> >();
+
+		//remove rows found in the initial partial solution
+		Vector<DancingLink> removedLinks = new Vector<DancingLink>();
+		
+		/*
+		for (int i=0;i<toRemove.length;i++){
+			if (!toRemove[i]) continue;
+			for (int j=0;j<links.get(i+1).size();i++){
+				DancingLink r = links.get(i+1).get(j);
+				DancingLink c = r.getColumnHeader();
+				removeColumn(c);
+				removedLinks.add(c);
+			}
+		}*/
+		//Idea if this doesn't work: have removeColumn do nothing if c.left.right isn't c
+		/**/
+		for (DancingLink c=h.getRight();c != null; c=c.getRight()){
+			for (DancingLink r=c.getDown();r != null;r = r.getDown()){
+				if (!toRemove[r.getRow()])
+					continue;
+
+				removeColumn(c);
+				removedLinks.add(c);
+				for (DancingLink rightNode=r.getRight();rightNode != null;rightNode = rightNode.getRight()){
+					removeColumn(rightNode.getColumnHeader());
+					removedLinks.add(rightNode.getColumnHeader());
+				}
+				for (DancingLink leftNode=r.getLeft();leftNode != null;leftNode = leftNode.getLeft()){
+					removeColumn(leftNode.getColumnHeader());
+					removedLinks.add(leftNode.getColumnHeader());
+				}
+			}			
+		}
+		/**/
+
+		algorithmX(pS,fullAnswer);
+
+		//return rows
+		for (int i=0;i<removedLinks.size();i++){
+			DancingLink removedLink = removedLinks.get(i);
+			returnColumn(removedLink);
+		}
+	}
 	public void algorithmX(){
 		solutions = new Vector< Vector<Integer> >();
 

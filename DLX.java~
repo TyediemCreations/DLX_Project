@@ -1,3 +1,10 @@
+
+/*
+  DLX; given the binary matrix representation of a sudoku puzzle, DLX will convert
+  into DancingLinks. DLX can then be used to find all solutions to that puzzle, in the form
+  of a list of all lists of row indices on the binary matrix that represent an exact cover
+*/
+
 import java.util.*;
 
 public class DLX{
@@ -177,11 +184,13 @@ public class DLX{
 			         * relative to binary matrix A, removes column 'c',
 				 * as well as all rows 'r' such that A[r][c] == 1
 				 */
-		if (c.getLeft() != null)
+		if (c.getLeft() != null){
+			//if (c.getLeft().getRight() != c) return;
 			c.getLeft().setRight(c.getRight());
-		if (c.getRight() != null)
+		}if (c.getRight() != null){
+			//if (c.getRight().getLeft() != c) return;
 			c.getRight().setLeft(c.getLeft());
-
+		}
 		for (DancingLink row=c.getDown(); row != null; row = row.getDown()){
 			for (DancingLink leftNode = row.getLeft(); leftNode != null; leftNode = leftNode.getLeft()){
 				if (leftNode.getUp() != null)
@@ -243,6 +252,78 @@ public class DLX{
 		return solutionsCopy;
 	}
 	
+	public Vector<Integer> algorithmXPlusPlus(Vector <Integer> pS,Vector<Integer> removeOrder, boolean fullAnswer){
+			/*
+			Runs algorithmX given an initial partial solution that must occur
+			in any full solution.
+			*/	
+		
+		solutions = new Vector< Vector<Integer> >();
+		Vector<Integer> ans = new Vector<Integer>();
+		boolean[] toRemove = new boolean[matrixRows];
+		for (int i=0;i<pS.size();i++){
+			toRemove[pS.get(i)] = true;
+		}
+
+		//remove rows found in the initial partial solution
+		Vector<DancingLink> removedLinks = new Vector<DancingLink>();
+
+		/*
+		for (DancingLink c=h.getRight();c != null; c=c.getRight()){
+			for (DancingLink r=c.getDown();r != null;r = r.getDown()){
+				if (!toRemove[r.getRow()])
+					continue;
+
+				removeColumn(c);
+				removedLinks.add(c);
+				for (DancingLink rightNode=r.getRight();rightNode != null;rightNode = rightNode.getRight()){
+					removeColumn(rightNode.getColumnHeader());
+					removedLinks.add(rightNode.getColumnHeader());
+				}
+				for (DancingLink leftNode=r.getLeft();leftNode != null;leftNode = leftNode.getLeft()){
+					removeColumn(leftNode.getColumnHeader());
+					removedLinks.add(leftNode.getColumnHeader());
+				}
+			}			
+		}
+		*/
+		for (int i=0;i<removeOrder.size();i++){
+			removeRow(removeOrder.get(i));
+		}
+		//printLinks();
+		for (int i=0;i<removeOrder.size();i++){
+			returnRow(removeOrder.get(i));
+			//printLinks();
+			solutions = new Vector< Vector<Integer> >();
+			algorithmX(pS,fullAnswer);
+			if (solutions.size() != 1){
+				removeRow(removeOrder.get(i));
+				ans.add(removeOrder.get(i));
+			}
+		}
+
+		//return rows
+		for (int i=0;i<removedLinks.size();i++){
+			DancingLink removedLink = removedLinks.get(i);
+			returnColumn(removedLink);
+		}
+		return ans;	
+	}
+	public void removeRow(int rowNo){
+		for (int i=0;i<links.get(rowNo+1).size();i++){
+			DancingLink r = links.get(rowNo+1).get(i);
+			DancingLink c = r.getColumnHeader();
+			removeColumn(c);
+		}
+	}
+	public void returnRow(int rowNo){
+		for (int i=0;i<links.get(rowNo+1).size();i++){
+			DancingLink r = links.get(rowNo+1).get(i);
+			DancingLink c = r.getColumnHeader();
+			returnColumn(c);
+		}
+	}
+
 	public void algorithmXPlus(Vector <Integer> pS,boolean fullAnswer){
 			/*
 			Runs algorithmX given an initial partial solution that must occur
