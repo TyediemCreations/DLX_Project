@@ -259,9 +259,7 @@ public class DLX{
 		solutions = new Vector< Vector<Integer> >();
 
 		boolean[] toRemove = new boolean[matrixRows];
-		System.out.println("matrix rows: "+matrixRows+", pS.size: "+pS.size());
 		for (int i=0;i<pS.size();i++){
-			System.out.println("pS.get(): "+pS.get(i));
 			toRemove[pS.get(i)] = true;
 		}
 

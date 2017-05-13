@@ -125,7 +125,7 @@ public class Puzzle{
 		for (int i=0;i<size;i++)
 			for (int j=0;j<size;j++)
 				possible[i][j] = new PosValues(size);
-		return getDifficulty(puzzle,possible);
+		return getDifficulty(copy,possible);
 	}
 	public int[] getDifficulty(int[][] puzzle,PosValues[][] possible){
 		int num;
