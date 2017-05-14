@@ -1,19 +1,10 @@
-/*
-  CreateSudoku; a Main-level class, can be run using 'make run NAME=CreateSudoku'
-  (Currently doesn't support arguments, but when it does they can be set using 'ARGS="<arg1> <arg2> ... <argN>")
-
-  Currently creates 64 Sudoku puzzles (ten 4x4, fifty 9x9, four 16x16),
-  In order from fewest to most missing numbers in the incomplete puzzle.
-  Puzzles are then printed to stdout, staggered to display all incomplete puzzles and 
-  their relative difficulty, followed by all completed puzzles
-*/
-
-
 import java.util.*;
 import java.io.*;
 
 public class CreateSudoku{
 	public static void main(String[] args){
+		//int size = 9;
+
 		/* 
 		if (args.length > 0){
 			for (int i=0;i<args.length;i++){
@@ -26,7 +17,6 @@ public class CreateSudoku{
 				}
 			}	
 		}*/
-
 		int dim,num;
 
 		dim = 4;
@@ -62,7 +52,7 @@ public class CreateSudoku{
 		for (int i=(num-1);i>=0;i--){
 			int[][] newPuzzle = myPuzzle.newCompletedPuzzle();
 
-			double ignoreNum = ((double) i/ (double) num) * 0.75;	//influences difficulty
+			double ignoreNum = ((double) i/ (double) num) * 0.75;
 			int[][] newIncomplete = myPuzzle.createPuzzlePlus(newPuzzle,ignoreNum);
 			int[] dif = myPuzzle.getDifficulty(newIncomplete);
 			

@@ -271,6 +271,7 @@ public class DLX{
 				if (!toRemove[r.getRow()])
 					continue;
 
+				if (emptyColumn()) {System.out.println("I got here");return;}
 				removeColumn(c);
 				removedLinks.add(c);
 				for (DancingLink rightNode=r.getRight();rightNode != null;rightNode = rightNode.getRight()){
@@ -291,6 +292,12 @@ public class DLX{
 			DancingLink removedLink = removedLinks.get(i);
 			returnColumn(removedLink);
 		}
+	}
+	public boolean emptyColumn(){
+		for (DancingLink c=h.getRight();c!=null;c=c.getRight()){
+			if (c.getDown() == null) return true;
+		}
+		return false;
 	}
 
 	public void algorithmXPlusPlus(boolean[] toRemove,boolean fullAnswer){
@@ -337,15 +344,6 @@ public class DLX{
 		algorithmX(pS,true);
 	}
 	private void algorithmX(Vector <Integer> pS, boolean fullAnswer){
-			/*
-			  Algorith X proper; adds lists of rows representing exact covers of
-			  the binary matrix to 'solutions', as it finds them.
-			  Maintains a partial solution, 'pS', to keep track of potential
-			  answers.
-			  Boolean 'fullAnswer' determines whether algorithmX continues
-			  searching for solutions after finding more than one 
-				(true => find all solutions; false => find at most two)
-			 */
 
 		if (!fullAnswer && solutions.size() > 1){
 			//for puzzle creation; indicates puzzle has at least 2 solutions
@@ -354,13 +352,13 @@ public class DLX{
 
 		Vector <Integer> partialSolution = solutionCopy(pS);
 
-		if (h.getRight() == null){  //all constraints satisfied (all columns removed)
+		if (h.getRight() == null){
 			solutions.add(partialSolution);
 			return;	//Current partial solution is valid; terminate successfully
 		}
 		DancingLink c = chooseColumn();	//choose column c, such that c is the first column with the fewest 1's
 		
-		if (c.getDown() == null){  //unsatisfiable constraint found (empty column)
+		if (c.getDown() == null){
 			return;	//terminate unsuccessfully
 		}
 		

@@ -259,9 +259,7 @@ public class Puzzle{
 	public int[][] createPuzzlePlus(int[][] completed, double ignorePercent){
 			/*
 			  Slightly optimized version of 'createPuzzle', cuts down on some
-  			  redundant passes through 'completed' by maintaining its own list
- 			  of values to remove, and passing that directly to a specialized
-			  version of algorithm X
+  			  redundant passes through 'completed' 
 			 */
 		int[][] completed_copy = copySudoku(completed);
 		Vector < Vector< Integer >> solutions = new Vector< Vector<Integer> >();
@@ -382,8 +380,7 @@ public class Puzzle{
 		if (num < 10) return (char) (num+ (int) '0');
 		else return (char) ((num-10)+ (int) 'A');
 	}
-
-	public void printBinary(){	//Used for testing purposes
+	public void printBinary(){
 		String filename = "test.txt";
 		
 		BufferedWriter bw = null;

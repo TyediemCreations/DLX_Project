@@ -61,7 +61,7 @@ public class SolvePuzzle{
 						}
 						colCounter++;
 					
-						if (colCounter >= col) rowCounter++;	
+						//if (colCounter >= col) rowCounter++;	
 					}
 				}
 				rowCounter++;

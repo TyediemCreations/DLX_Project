@@ -60,16 +60,6 @@ public class PosValues{
 		return copy;
 	}
 	public int setPos(int row, int col, int[][] puzzle){
-			/*
-			  sets possible values by eliminating numbers found in the same
-			  row, column, and sub-region, respectively.
-			  Returns a int between -1 and 3; 
-				-1 => 0 possibile numbers
-				 0 => 2/more possible numbers
-				 1 => 1 possible number found from one of row,column,region
-				 2 => 1 possible number found from two of row,column,region
-				 3 => 1 possible number found from all of row,column,region
-			*/
 		int level = 0;
 		boolean[] colVals = colPos(col,puzzle);
 		boolean[] rowVals = rowPos(row,puzzle);
@@ -117,11 +107,6 @@ public class PosValues{
 	}
 	public boolean[] get(){return values;}
 	public int uniqueVal(int row, int col, PosValues[][] possible){
-			/*
-			  returns a unique possible value relative to other possible values
-			  in its row,column or sub-region.
-			  returns 0 if none exists
-			 */
 		boolean[] unique = copyValues();
 		for (int posRow=0;posRow<possible.length;posRow++){
 			if (posRow == row) continue;
@@ -200,7 +185,7 @@ public class PosValues{
 		}
 		return count;
 	}
-	public void set(int num){	//set one -and only one- possible value
+	public void set(int num){
 		for (int i=0;i<values.length;i++){
 			values[i] = false;
 		}
